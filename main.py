@@ -1,7 +1,7 @@
 import torch
 import torchvision.transforms as transforms
 from CNNClassifier import CNN
-from cifar10classification.cifar10classification.CIFAR10DataLoader import CIFAR10DataLoader
+from CIFAR10DataLoader import CIFAR10DataLoader
 
 useCuda = 'Y'
 data_path = './data'
@@ -39,16 +39,16 @@ loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
 for i, data in enumerate(train_loader):
-    print("i: ", i)
+    # print("i: ", i)
     # get the inputs
     inputs, labels = data[0], data[1]
     # print(inputs.shape)
-    # device = torch.device("cuda:0" if torch.cuda.is_available else "cpu")
+    device = torch.device("cuda:0" if torch.cuda.is_available else "cpu")
     # inputs, labels = data[0].to(device), data[1].to(device)
-    # if is_gpu:
-    #     inputs = inputs.cuda()
-    #     labels = labels.cuda()
-    # net.to(device)
+    if is_gpu:
+        inputs = inputs.cuda()
+        labels = labels.cuda()
+        net.to(device)
 
 #     # wrap them in Variable
 #     inputs, labels = Variable(inputs), Variable(labels)
@@ -64,7 +64,7 @@ for i, data in enumerate(train_loader):
 #
     # print statistics
     running_loss += loss.item()
-    print("running_loss: ", running_loss)
+    # print("running_loss: ", running_loss)
 
     _, predicted = outputs.max(1)
     total += labels.size(0)
@@ -76,6 +76,7 @@ for i, data in enumerate(train_loader):
     running_loss /= len(train_loader)
     # accuracy
     train_accuracy = 100 * correct / total
+    print("train_accuracy: ", train_accuracy)
 #
 #     print('Epoch {}, train Loss: {:.3f}'.format(epochs, loss.item()), "Training Accuracy: %d %%" % train_accuracy)
 
@@ -84,8 +85,8 @@ torch.save(net.state_dict(), PATH)
 print('==> Finished Training ...')
 
 
-dataiter = iter(test_loader)
-images, labels = dataiter.next()
+# dataiter = iter(test_loader)
+# images, labels = dataiter.next()
 
 net = CNN()
 net.load_state_dict(torch.load(PATH))

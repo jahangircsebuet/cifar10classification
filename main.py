@@ -1,7 +1,7 @@
 import torch
 import torchvision.transforms as transforms
 from CNNClassifier import CNN
-from CIFAR10DataLoader import CIFAR10DataLoader
+from cifar10classification.cifar10classification.CIFAR10DataLoader import CIFAR10DataLoader
 
 useCuda = 'Y'
 data_path = './data'

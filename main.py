@@ -14,14 +14,15 @@ transform_config = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
 ])
-batch = 128
+train_batch = 128
+test_batch = 100
 epochs = 5
 
 print("init data loader class")
 data_loader = CIFAR10DataLoader()
 print("load data")
-train, train_loader, test, test_loader = data_loader.load(root=data_path, transform=transform_config, batch_size=batch,
-                                                          num_workers=workers)
+train, train_loader, test, test_loader = data_loader.load(root=data_path, transform=transform_config, train_batch_size=train_batch,
+                                                          test_batch_size=test_batch, num_workers=workers)
 print("data loaded successfully")
 
 is_gpu = False

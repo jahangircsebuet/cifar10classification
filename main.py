@@ -2,12 +2,28 @@ import torch
 import torchvision.transforms as transforms
 from CNNClassifier import CNN
 from CIFAR10DataLoader import CIFAR10DataLoader
+import argparse
 
+# arguments
 useCuda = 'Y'
 data_path = './data'
 workers = 2
 optimizer = 'sgd'
-print("Define transformer")
+is_gpu = False
+parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
+parser.add_argument('--useCuda', default='Y', type=str, help='use cuda or not')
+parser.add_argument('--dataPath', default='./data', type=str, help='data path where data to be stored')
+parser.add_argument('--workers', default=2, type=int, help='number of workers')
+parser.add_argument('--optimizer', default='sgd', type=str, help='optimizer name')
+
+args = parser.parse_args()
+print("useCuda: ", args.useCuda)
+print("dataPath: ", args.dataPath)
+print("workers: ", args.workers)
+print("optimizer: ", args.optimizer)
+
+# Data
+print('==> Preparing data..')
 transform_config = transforms.Compose([
     transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(p=0.5),
@@ -21,11 +37,13 @@ epochs = 5
 print("init data loader class")
 data_loader = CIFAR10DataLoader()
 print("load data")
-train, train_loader, test, test_loader = data_loader.load(root=data_path, transform=transform_config, train_batch_size=train_batch,
+train, train_loader, test, test_loader = data_loader.load(root=data_path, transform=transform_config,
+                                                          train_batch_size=train_batch,
                                                           test_batch_size=test_batch, num_workers=workers)
 print("data loaded successfully")
 
-is_gpu = False
+# Model
+print('==> Building model..')
 net = CNN()
 
 # if is_gpu:
@@ -51,18 +69,18 @@ for i, data in enumerate(train_loader):
         labels = labels.cuda()
         net.to(device)
 
-#     # wrap them in Variable
-#     inputs, labels = Variable(inputs), Variable(labels)
+    #     # wrap them in Variable
+    #     inputs, labels = Variable(inputs), Variable(labels)
 
     # zero the parameter gradients
     optimizer.zero_grad()
-#
-#     # forward + backward + optimize
+    #
+    #     # forward + backward + optimize
     outputs = net.forward(inputs)
     loss = loss_fn(outputs, labels)
     loss.backward()
     optimizer.step()
-#
+    #
     # print statistics
     running_loss += loss.item()
     # print("running_loss: ", running_loss)
@@ -72,7 +90,7 @@ for i, data in enumerate(train_loader):
     print("total: ", total)
     correct += predicted.eq(labels).sum().item()
     print("correct: ", correct)
-#
+    #
     # Normalizing the loss by the total number of train batches
     running_loss /= len(train_loader)
     # accuracy
@@ -84,7 +102,6 @@ for i, data in enumerate(train_loader):
 PATH = './cifar_net.pth'
 torch.save(net.state_dict(), PATH)
 print('==> Finished Training ...')
-
 
 # dataiter = iter(test_loader)
 # images, labels = dataiter.next()
@@ -110,6 +127,6 @@ with torch.no_grad():
         print("test.correct: ", correct)
 
 print('Accuracy of the network on the 10000 test images: %d %%' % (
-    100 * correct / total))
+        100 * correct / total))
 
 print('==> Finished Testing ...')
